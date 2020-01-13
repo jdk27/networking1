@@ -12,17 +12,20 @@ print('we are listening')
 
 # Readings the request from the client socket
 while True:
-    print('here here here')
     conn, addr = accept_s.accept()
-    print('waiting to accept', conn)
-    cfile = conn.makefile('rw', 0) 
+    cfile = conn.makefile('rw', 248) 
 
     line = cfile.readline().strip() 
-    print('here')
+    right = line.find('.htm') + 5
+    left = line.find('/') + 1
+    print('left', left)
+    print('right', right)
+    print('substring', line[left:right])
+    print("check this out", line)
 
     # Lets see if this works
     cfile.write('HTTP/1.0 200 OK\n\n') 
-    cfile.write('<html><head><title>Welcome %s!</title></head>' %(str(caddr))) 
+    cfile.write('<html><head><title>Welcome %s!</title></head>' %(str(addr))) 
     cfile.write('<body><h1>Follow the link...</h1>') 
     cfile.write('All the server needs to do is ') 
     cfile.write('to deliver the text to the socket. ') 
