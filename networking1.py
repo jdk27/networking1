@@ -21,7 +21,8 @@ def get_host_and_path(url):
 
 
 def format_request(host, path):
-    return "GET /" + path + " HTTP/1.0\r\nHost: " + host + "\n\n"
+    # return "GET /" + path + " HTTP/1.0\r\nHost: " + host + "\n\n"
+    return "GET /" + path + " HTTP/1.0\r\nHost: " + host + "\r\n\r\n"
 
 
 def redirect_url(response):
@@ -31,7 +32,9 @@ def redirect_url(response):
 
 
 redirects = 0
-url = "https://www.airbnb.com/belong-anywhere"  # url = str(sys.argv)
+# url = "https://www.airbnb.com/belong-anywhere"  # url = str(sys.argv)
+# url = "http://insecure.stevetarzia.com/basic.html"
+url = "http://insecure.stevetarzia.com/redirect"
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 while redirects != 10:
@@ -41,6 +44,7 @@ while redirects != 10:
     while data:
         response += data.decode('utf-8')
         data = client.recv(1024)
+    print('Here is the response: ', response)
     response_code = int(response[9:12])
     # make another request to fetch the corrected url and print a message to stderr explaining what happened
     if response_code == 301 or response_code == 302:
