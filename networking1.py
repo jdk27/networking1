@@ -2,7 +2,6 @@ import socket
 import sys
 import re
 
-
 def is_good_url(url_components):
     if not url_components:
         return False
@@ -15,14 +14,12 @@ def is_good_url(url_components):
         return False
     return True
 
-
 def send_request(url_components):
     host, path = get_host_and_path(url_components)
     remote_ip = socket.gethostbyname(host)
     request = format_request(host, path)
     client.connect((remote_ip, 80))
     client.send(bytes(request, 'utf-8'))
-
 
 def get_host_and_path(url_components):
     host = url_components.group(4)
@@ -34,10 +31,6 @@ def get_host_and_path(url_components):
 
 
 def format_request(host, path):
-<<<<<<< HEAD
-=======
-    # return "GET /" + path + " HTTP/1.0\r\nHost: " + host + "\n\n"
->>>>>>> 615d83901794fb7ad7192b79ec932d65b89de975
     return "GET /" + path + " HTTP/1.0\r\nHost: " + host + "\r\n\r\n"
 
 
@@ -47,7 +40,6 @@ def redirect_url(response):
     return response[url_start:url_end]
 
 
-<<<<<<< HEAD
 # http://airbedandbreakfast.com/
 # https://www.airbnb.com/belong-anywhere
 # http://insecure.stevetarzia.com/basic.html
@@ -58,10 +50,6 @@ def redirect_url(response):
 
 url = "http://cs.northwestern.edu/340"  # url = str(sys.argv)
 =======
-redirects = 0
-# url = "https://www.airbnb.com/belong-anywhere"  # url = str(sys.argv)
-# url = "http://insecure.stevetarzia.com/basic.html"
-url = "http://insecure.stevetarzia.com/redirect"
 >>>>>>> 615d83901794fb7ad7192b79ec932d65b89de975
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 redirects = 0
@@ -102,7 +90,6 @@ while redirects != 10:
 
     # 200 OK response
     else:
-<<<<<<< HEAD
         break
 
 client.close()
@@ -114,6 +101,3 @@ if 200 == response_code:
     sys.exit(0)
 else:
     sys.exit(1)
-=======
-        break
->>>>>>> 615d83901794fb7ad7192b79ec932d65b89de975
