@@ -14,12 +14,14 @@ def is_good_url(url_components):
         return False
     return True
 
+
 def send_request(url_components):
     host, path = get_host_and_path(url_components)
     remote_ip = socket.gethostbyname(host)
     request = format_request(host, path)
     client.connect((remote_ip, 80))
     client.send(bytes(request, 'utf-8'))
+
 
 def get_host_and_path(url_components):
     host = url_components.group(4)
@@ -49,8 +51,6 @@ def redirect_url(response):
 # http://cs.northwestern.edu/340
 
 url = "http://cs.northwestern.edu/340"  # url = str(sys.argv)
-=======
->>>>>>> 615d83901794fb7ad7192b79ec932d65b89de975
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 redirects = 0
 
