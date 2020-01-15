@@ -2,7 +2,7 @@ import socket
 import os
 import sys
 
-port = int(sys.argv[1]) #input from command line
+port = int(sys.argv[1]) #input from command line. Should we error check?
 
 #Creating the socket
 accept_s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -15,7 +15,7 @@ print('we are listening')
 # Readings the request from the client socket
 while True:
     conn, addr = accept_s.accept()
-    cfile = conn.makefile('rw', 248) 
+    cfile = conn.makefile('rw', 248) # NEED REASON FOR WHY 248
 
     # Parse the response to see what file they want
     line = cfile.readline().strip() 
