@@ -52,6 +52,7 @@ def redirect_url(response):
 # http://cs.northwestern.edu/340
 
 url = "http://cs.northwestern.edu/340"  # url = str(sys.argv)
+
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 redirects = 0
 
