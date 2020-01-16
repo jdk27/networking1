@@ -2,12 +2,13 @@ import socket
 import sys
 import re
 
+
 def is_good_url(url_components):
     if not url_components:
         return False
      # can't be https
     if url_components.group(1) != 'http':
-        sys.stderr.write('ERROR: https protocol')
+        print('ERROR: https protocol', file=sys.stderr)
         return False
      # must have a host domain
     if not url_components.group(4):
@@ -73,20 +74,19 @@ while redirects != 10:
     while data:
         response += data.decode('utf-8')
         data = client.recv(1024)
-    print('Here is the response: ', response)
     response_code = int(response[9:12])
 
     # make another request to fetch the corrected url and print a message to stderr explaining what happened
     if response_code == 301 or response_code == 302:
         url = redirect_url(response)
-        sys.stderr.write('Redirected to ' + url)
+        print('Redirected to ' + url, file=sys.stderr)
         client.close()
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         redirects += 1
 
     # return a non-zero exit code, but also print the response body
     elif response_code >= 400:
-        sys.stderr.write('error')
+        print('400 Error', file=sys.stderr)
         break
 
     # 200 OK response
