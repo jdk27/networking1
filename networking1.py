@@ -43,6 +43,23 @@ def redirect_url(response):
     return response[url_start:url_end]
 
 
+def print_body(response, client):
+    length_start = response.find('Content-Length: ')
+    html = response[response.find('\r\n\r\n')+len('\r\n\r\n'):]
+    print(response)
+    if -1 != length_start:
+        length_start += len('Content-Length: ')
+        length_end = response.find('\r\n', length_start)
+        total_length = int(response[length_start:length_end])
+        while len(html) < total_length:
+            response = str(client.recv(1024), 'utf-8')
+            html += response
+    else:
+        while response:
+            response = str(client.recv(1024), 'utf-8')
+            html += response
+    print(html)
+
 # http://airbedandbreakfast.com/
 # https://www.airbnb.com/belong-anywhere
 # http://insecure.stevetarzia.com/basic.html
@@ -51,8 +68,8 @@ def redirect_url(response):
 # http://insecure.stevetarzia.com/redirect-hell
 # http://cs.northwestern.edu/340
 
-url = "http://cs.northwestern.edu/340"  # url = str(sys.argv)
 
+url = str(sys.argv)
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 redirects = 0
 
@@ -69,11 +86,7 @@ while redirects != 10:
 
     # get the response
     send_request(url_components)
-    data = client.recv(1024)
-    response = ''
-    while data:
-        response += data.decode('utf-8')
-        data = client.recv(1024)
+    response = str(client.recv(1024), 'utf-8')
     response_code = int(response[9:12])
 
     # make another request to fetch the corrected url and print a message to stderr explaining what happened
@@ -87,17 +100,16 @@ while redirects != 10:
     # return a non-zero exit code, but also print the response body
     elif response_code >= 400:
         print('400 Error', file=sys.stderr)
+        print_body(response, client)
         break
 
     # 200 OK response
     else:
+        print_body(response, client)
         break
 
 client.close()
 
-if redirects != 10 and valid_url and 200 == response_code or 400 <= response_code and -1 != response.find('Content-Type: text/html'):
-    start = response.find('\r\n\r\n')+4
-    print(response[start:-1])
 if 200 == response_code:
     sys.exit(0)
 else:
