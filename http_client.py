@@ -16,7 +16,7 @@ def is_good_url(url_components):
     return True
 
 
-def send_request(url_components):
+def send_request(url_components, client):
     host, path = get_host_and_path(url_components)
     remote_ip = socket.gethostbyname(host)
     request = format_request(host, path)
@@ -69,9 +69,11 @@ def print_body(response, client):
 # http://cs.northwestern.edu/340
 
 
-url = str(sys.argv)
+url = str(sys.argv[1])
+#url = 'http://insecure.stevetarzia.com/redirect-hell'
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 redirects = 0
+response_code = 0
 
 while redirects != 10:
     # modified regex expression to handle port numbers
@@ -79,13 +81,13 @@ while redirects != 10:
     # ^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$
     # comes from https://stackoverflow.com/questions/27745/getting-parts-of-a-url-regex
     url_components = re.search(
-        r'^(http|https)?(:\/\/)?(w{3}\.)?([\w\-\.]+)(:)?(\d+)?(\/)?([\w\-\.]+)?(\/)?', url)
+        r'^(https|http)?(:\/\/)?(w{3}\.)?([\w\-\.]+)(:)?(\d+)?(\/)?([\w\-\.]+)?(\/)?', url)
     valid_url = is_good_url(url_components)
     if not valid_url:
         break
 
     # get the response
-    send_request(url_components)
+    send_request(url_components, client)
     response = str(client.recv(1024), 'utf-8')
     response_code = int(response[9:12])
 
