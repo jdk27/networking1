@@ -20,7 +20,11 @@ def send_request(url_components, client):
     host, path = get_host_and_path(url_components)
     remote_ip = socket.gethostbyname(host)
     request = format_request(host, path)
-    client.connect((remote_ip, 80))
+    if url_components.group(6):
+        client.connect((remote_ip, int(url_components.group(6))))
+    else:
+        client.connect((remote_ip, 80))
+
     client.send(bytes(request, 'utf-8'))
 
 
@@ -46,7 +50,6 @@ def redirect_url(response):
 def print_body(response, client):
     length_start = response.find('Content-Length: ')
     html = response[response.find('\r\n\r\n')+len('\r\n\r\n'):]
-    print(response)
     if -1 != length_start:
         length_start += len('Content-Length: ')
         length_end = response.find('\r\n', length_start)
@@ -70,7 +73,6 @@ def print_body(response, client):
 
 
 url = str(sys.argv[1])
-#url = 'http://insecure.stevetarzia.com/redirect-hell'
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 redirects = 0
 response_code = 0
@@ -101,7 +103,7 @@ while redirects != 10:
 
     # return a non-zero exit code, but also print the response body
     elif response_code >= 400:
-        print('400 Error', file=sys.stderr)
+        print(str(response_code)+' Error', file=sys.stderr)
         print_body(response, client)
         break
 
