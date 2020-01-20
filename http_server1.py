@@ -15,10 +15,15 @@ print('we are listening')
 # Readings the request from the client socket
 while True:
     conn, addr = accept_s.accept()
-    cfile = conn.makefile('rw', 248) 
+    # cfile = conn.makefile('rw', 248)
+    request = conn.recv(2048).decode()
+    # capitalizedRequest = request.upper()
+    okay = 'HTTP/1.0 200 OK\n\n'
+    conn.send(okay.encode())
+    # conn.send(request.encode())
 
     # Parse the response to see what file they want
-    line = cfile.readline().strip() 
+    line = request.strip()
     right = line.find('.htm') + 5
     left = line.find('/') + 1
     print('left', left)
@@ -29,20 +34,21 @@ while True:
     print('no ending: ', requested_file.split('.')[0])
 
     if requested_file and requested_file in os.listdir("pages"):
-        cfile.write('HTTP/1.0 200 OK\n\n')
-        print('HTTP/1.0 200 OK\n\n')
+    #     print('HTTP/1.0 200 OK\n\n')
         response = open('pages/' + requested_file, 'r') 
         contents = response.read()
-        cfile.write(contents)
+        conn.send(contents.encode())
+
     # Need better way to check if name but not .html exists than just making a new split list and checking through
     # elif request_file.split('.')[0] in :
         # cfile.write('HTTP/1.0 403 Forbidden\n\n')
         # print('HTTP/1.0 403 Forbidden\n\n')
     else:
-        cfile.write('HTTP/1.0 404 Not Found\n\n') 
+        not_found = 'HTTP/1.0 404 Not Found\n\n'
+        conn.send(not_found.encode()) 
         print('HTTP/1.0 404 Not Found\n\n') 
 
-    # If the file exists
+    # # If the file exists
     # cfile.write('HTTP/1.0 200 OK\n\n') 
     # # print('files available: ', os.listdir("pages"))
     # response = open('pages/rfc2616.html', 'r')
@@ -51,11 +57,9 @@ while True:
     # cfile.write(contents)
 
 
-    # # If the file does not exists
-    # cfile.write('HTTP/1.0 404 Not Found\n\n') 
-    # # If the file exists but doesn't end in htm/l
-    # cfile.write('HTTP/1.0 403 Forbidden\n\n') 
+    # # # If the file does not exists
+    # # cfile.write('HTTP/1.0 404 Not Found\n\n') 
+    # # # If the file exists but doesn't end in htm/l
+    # # cfile.write('HTTP/1.0 403 Forbidden\n\n') 
 
-
-    cfile.close() 
     conn.close() 
