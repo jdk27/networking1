@@ -31,34 +31,34 @@ while True:
                 read_list.append(conn)
                 open_connections[conn] = []
             else:
-                # cfile = s.makefile('rw', 248)
-                # line = cfile.readline().strip()
-                # right = line.find('.htm')+5
-                # left = line.find('/')+1
-                # requested_file = line[left:right]
                 request = s.recv(2048).decode()
 
                 line = request.strip()
-                right = line.find('.htm') + 5
+                right = line.find('.') + 5
                 left = line.find('/') + 1
                 requested_file = line[left:right]
-
+                file_name = requested_file.split('.')[0]
+                
+                pages_dict = {}
+                for page in os.listdir("pages"):
+                    page = page.split('.')
+                    pages_dict[page[0]] = page[1]
 
                 if requested_file and requested_file in os.listdir('pages'):
-                    # cfile.write('HTTP/1.0 200 OK\n\n')
                     okay = 'HTTP/1.0 200 OK\n\n'
                     s.send(okay.encode())
                     response = open('pages/' + requested_file, 'r')
                     contents = response.read()
-                    print('Right before we write contents')
-                    # cfile.write(contents)
                     s.send(contents.encode())
-                    print('Right after we write contents')
+                elif file_name in pages_dict:
+                    forbidden = 'HTTP/1.0 403 FORBIDDEN\n\n'
+                    print('here is the file name: ', file_name)
+                    print('forbidden')
+                    conn.send(forbidden.encode()) 
                 else:
-                    # cfile.write('HTTP/1.0 404 Not Found\n\n')
                     not_found = 'HTTP/1.0 404 Not Found\n\n'
                     s.send(not_found.encode()) 
+                    print('not find hehe')
 
-                # cfile.close()
                 s.close()
                 read_list.remove(s)
