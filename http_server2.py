@@ -8,7 +8,7 @@ import sys
 accept_s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Binding socket to the port
-port = int(sys.argv[1]) #input from command line
+port = int(sys.argv[1])  # input from command line
 accept_s.bind(('', port))
 accept_s.listen(1)
 print('we are listening')
@@ -38,7 +38,7 @@ while True:
                 left = line.find('/') + 1
                 requested_file = line[left:right]
                 file_name = requested_file.split('.')[0]
-                
+
                 cwd = os.getcwd()
 
                 pages_dict = {}
@@ -50,17 +50,20 @@ while True:
                         pages_dict[page] = ''
 
                 if requested_file and requested_file in os.listdir(cwd):
-                    okay = 'HTTP/1.0 200 OK\n\n'
-                    s.send(okay.encode())
+                    path = cwd+'/'+requested_file
+                    file_size = str(os.path.getsize(path))
+                    header = 'HTTP/1.0 200 OK\r\n' + 'Content-Length: ' + file_size + \
+                        '\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n'
+                    s.send(header.encode())
                     response = open(requested_file, 'r')
-                    contents = response.read()
-                    s.send(contents.encode())
+                    body = response.read()
+                    s.send(body.encode())
                 elif file_name in pages_dict:
                     forbidden = 'HTTP/1.0 403 FORBIDDEN\n\n'
-                    conn.send(forbidden.encode()) 
+                    conn.send(forbidden.encode())
                 else:
                     not_found = 'HTTP/1.0 404 Not Found\n\n'
-                    s.send(not_found.encode()) 
+                    s.send(not_found.encode())
 
                 s.close()
                 read_list.remove(s)

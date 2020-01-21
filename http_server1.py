@@ -2,13 +2,13 @@ import socket
 import os
 import sys
 
-port = int(sys.argv[1]) #input from command line
+port = int(sys.argv[1])  # input from command line
 
-#Creating the socket
+# Creating the socket
 accept_s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-#Binding the port to the socket
-accept_s.bind(('',port))
+# Binding the port to the socket
+accept_s.bind(('', port))
 accept_s.listen(1)
 print('we are listening')
 
@@ -31,7 +31,6 @@ while True:
 
     pages_dict = {}
     for page in os.listdir(cwd):
-        print(page)
         if page.find('.') != 0:
             page = page.split('.')
             pages_dict[page[0]] = page[1]
@@ -39,18 +38,21 @@ while True:
             pages_dict[page] = ''
 
     if requested_file and requested_file in os.listdir(cwd):
-        okay = 'HTTP/1.0 200 OK\n\n'
-        conn.send(okay.encode())
-        response = open(requested_file, 'r') 
-        contents = response.read()
-        conn.send(contents.encode())
+        path = cwd+'/'+requested_file
+        file_size = str(os.path.getsize(path))
+        header = 'HTTP/1.0 200 OK\r\n' + 'Content-Length: ' + file_size + \
+            '\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n'
+        conn.send(header.encode())
+        response = open(requested_file, 'r')
+        body = response.read()
+        conn.send(body.encode())
 
     elif file_name in pages_dict:
         forbidden = 'HTTP/1.0 403 FORBIDDEN\n\n'
-        conn.send(forbidden.encode()) 
+        conn.send(forbidden.encode())
 
     else:
         not_found = 'HTTP/1.0 404 Not Found\n\n'
-        conn.send(not_found.encode()) 
+        conn.send(not_found.encode())
 
-    conn.close() 
+    conn.close()
