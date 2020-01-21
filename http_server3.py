@@ -16,47 +16,65 @@ print('we are listening')
 # Readings the request from the client socket
 while True:
     conn, addr = accept_s.accept()
-    cfile = conn.makefile('rw', 248)
+    request = conn.recv(2048).decode()
+    line = request.strip()
+    end_line = line.find('\r\n')
+    print('end line: ', end_line)
+    line = line[:end_line]
+    print('here is the line: ', line)
+    print('we done with the line')
 
     # Parse the request to get the operation
-    line = cfile.readline().strip()
+
     operation_location = line.find('/')+1
-    operation = line[operation_location: operation_location + 7]
+    operation_right = line.find('?')
+    # operation = line[operation_location: operation_location + 7]
+    operation = line[operation_location: operation_right]
     status_code = ''
     if operation != 'product':
         status_code = '404 Not Found'
 
     # Parse the rest of the request to get the operands
+    print('the line before rest: ',line)
     rest = line[operation_location + 8:-9]
-    print(rest)
+    print('rest: ',rest)
     values = rest.split('&')
-    print(values)
-    print(operation)
+    print('values: ', values)
+    print('operation: ', operation)
     operands = []
     for variable in values:
         left = variable.find('=') + 1
-        if not variable.isnumeric() and not status_code:
+        x = variable[left:]
+        try:
+            x = float(x)
+        except:
+            print('')
+
+        if (not isinstance(x,float)) and not status_code:
             status_code = '400 Bad Request'
-        operands.append(float(variable[left:]))
-    print(operands)
+        operands.append(x)
+    print('operands: ', operands)
 
     if not status_code:
         status_code = '200 OK'
         # Do the math
         product = 1
         for operand in operands:
-            product = operands * product
+            product = operand * product
 
         # Format into JSON
         response_body = json.dumps(
             {'operation': 'product', 'operands': operands, 'result': product})
-        cfile.write('HTTP/1.0 200 OK \r\n')
-        cfile.write('Content-Type: application/json\r\n\r\n')
-        cfile.write(response_body)
+        okay = 'HTTP/1.0 200 OK\r\n'
+        content_type = 'Content-Type: application/json\r\n\r\n'
+    
+        conn.send(okay.encode())
+        conn.send(content_type.encode())
+        conn.send(response_body.encode())
     else:
-        cfile.write('HTTP/1.0 ' + status_code + '\r\n')
+        err = 'HTTP/1.0 ' + status_code + '\r\n'
+        conn.send(err.encode())
 
-    cfile.close()
     conn.close()
 
     # Write the response back to the file?
