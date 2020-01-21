@@ -11,7 +11,6 @@ accept_s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 port = int(sys.argv[1]) #input from command line
 accept_s.bind(('', port))
 accept_s.listen(1)
-print('we are listening')
 
 # list of request sockets
 open_connections = {}
