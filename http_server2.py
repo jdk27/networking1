@@ -39,26 +39,28 @@ while True:
                 requested_file = line[left:right]
                 file_name = requested_file.split('.')[0]
                 
-                pages_dict = {}
-                for page in os.listdir("pages"):
-                    page = page.split('.')
-                    pages_dict[page[0]] = page[1]
+                cwd = os.getcwd()
 
-                if requested_file and requested_file in os.listdir('pages'):
+                pages_dict = {}
+                for page in os.listdir(cwd):
+                    if page.find('.') != 0:
+                        page = page.split('.')
+                        pages_dict[page[0]] = page[1]
+                    else:
+                        pages_dict[page] = ''
+
+                if requested_file and requested_file in os.listdir(cwd):
                     okay = 'HTTP/1.0 200 OK\n\n'
                     s.send(okay.encode())
-                    response = open('pages/' + requested_file, 'r')
+                    response = open(requested_file, 'r')
                     contents = response.read()
                     s.send(contents.encode())
                 elif file_name in pages_dict:
                     forbidden = 'HTTP/1.0 403 FORBIDDEN\n\n'
-                    print('here is the file name: ', file_name)
-                    print('forbidden')
                     conn.send(forbidden.encode()) 
                 else:
                     not_found = 'HTTP/1.0 404 Not Found\n\n'
                     s.send(not_found.encode()) 
-                    print('not find hehe')
 
                 s.close()
                 read_list.remove(s)
