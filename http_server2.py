@@ -33,22 +33,17 @@ while True:
                 request = s.recv(2048).decode()
 
                 line = request.strip()
-                right = line.find('.') + 5
                 left = line.find('/') + 1
+                right = line.find(' ', left)
                 requested_file = line[left:right]
+                extension = requested_file[requested_file.find('.'):]
                 file_name = requested_file.split('.')[0]
+                good_extension = extension == '.htm' or extension == '.html'
 
                 cwd = os.getcwd()
+                cwd_files = os.listdir(cwd)
 
-                pages_dict = {}
-                for page in os.listdir(cwd):
-                    if page.find('.') != 0:
-                        page = page.split('.')
-                        pages_dict[page[0]] = page[1]
-                    else:
-                        pages_dict[page] = ''
-
-                if requested_file and requested_file in os.listdir(cwd):
+                if requested_file and requested_file in cwd_files and good_extension:
                     path = cwd+'/'+requested_file
                     file_size = str(os.path.getsize(path))
                     header = 'HTTP/1.0 200 OK\r\n' + 'Content-Length: ' + file_size + \
@@ -57,7 +52,7 @@ while True:
                     response = open(requested_file, 'r')
                     body = response.read()
                     s.send(body.encode())
-                elif file_name in pages_dict:
+                elif requested_file and requested_file in cwd_files and not good_extension:
                     forbidden = 'HTTP/1.0 403 FORBIDDEN\n\n'
                     conn.send(forbidden.encode())
                 else:

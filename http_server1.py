@@ -15,29 +15,22 @@ print('we are listening')
 # Readings the request from the client socket
 while True:
     conn, addr = accept_s.accept()
-    # cfile = conn.makefile('rw', 248)
     request = conn.recv(2048).decode()
-    # capitalizedRequest = request.upper()
-    # conn.send(request.encode())
 
     # Parse the response to see what file they want
     line = request.strip()
-    right = line.find('.') + 5
     left = line.find('/') + 1
+    right = line.find(' ', left)
     requested_file = line[left:right]
-    file_name = requested_file.split('.')[0]
+    extension = requested_file[requested_file.find('.'):]
+    good_extension = extension == '.htm' or extension == '.html'
 
+    # get the path to the current working directory and the files in it
     cwd = os.getcwd()
+    cwd_files = os.listdir(cwd)
 
-    pages_dict = {}
-    for page in os.listdir(cwd):
-        if page.find('.') != 0:
-            page = page.split('.')
-            pages_dict[page[0]] = page[1]
-        else:
-            pages_dict[page] = ''
-
-    if requested_file and requested_file in os.listdir(cwd):
+    # if there's a matching htm or html file that's in the current working directory
+    if requested_file and requested_file in cwd_files and good_extension:
         path = cwd+'/'+requested_file
         file_size = str(os.path.getsize(path))
         header = 'HTTP/1.0 200 OK\r\n' + 'Content-Length: ' + file_size + \
@@ -47,10 +40,12 @@ while True:
         body = response.read()
         conn.send(body.encode())
 
-    elif file_name in pages_dict:
+    # if there's a matching file in the current working directory but isn't .htm or .html
+    elif requested_file and requested_file in cwd_files and not good_extension:
         forbidden = 'HTTP/1.0 403 FORBIDDEN\n\n'
         conn.send(forbidden.encode())
 
+    # else there is not a matching file in the current working directory
     else:
         not_found = 'HTTP/1.0 404 Not Found\n\n'
         conn.send(not_found.encode())
