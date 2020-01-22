@@ -117,4 +117,5 @@ client.close()
 if 200 == response_code:
     sys.exit(0)
 else:
+    if redirects == 10: print('Error. Could not reach page', file=sys.stderr)
     sys.exit(1)
