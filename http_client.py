@@ -47,6 +47,16 @@ def redirect_url(response):
     return response[url_start:url_end]
 
 
+def has_valid_content_type(response):
+    start = response.find('Content-Type: ')
+    if start == -1:
+        return False
+    start += len('Content-Type: ')
+    end = start+len('text/html')
+    content_type = response[start:end]
+    return content_type == 'text/html'
+
+
 def print_body(response, client):
     length_start = response.find('Content-Length: ')
     html = response[response.find('\r\n\r\n')+len('\r\n\r\n'):]
@@ -73,6 +83,7 @@ def print_body(response, client):
 
 
 url = str(sys.argv[1])
+
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 redirects = 0
 response_code = 0
@@ -104,12 +115,19 @@ while redirects != 10:
     # return a non-zero exit code, but also print the response body
     elif response_code >= 400:
         print(str(response_code)+' Error', file=sys.stderr)
-        print_body(response, client)
+        if has_valid_content_type(response):
+            print_body(response, client)
+        else:
+            print('Invalid Content-Type', file=sys.stderr)
         break
 
     # 200 OK response
     else:
-        print_body(response, client)
+        if has_valid_content_type(response):
+            print_body(response, client)
+        else:
+            print('Invalid Content-Type', file=sys.stderr)
+            response_code = -1
         break
 
 client.close()
@@ -117,5 +135,6 @@ client.close()
 if 200 == response_code:
     sys.exit(0)
 else:
-    if redirects == 10: print('Error. Could not reach page', file=sys.stderr)
+    if redirects == 10:
+        print('Error. Could not reach page', file=sys.stderr)
     sys.exit(1)
