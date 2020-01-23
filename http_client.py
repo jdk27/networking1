@@ -114,11 +114,8 @@ while redirects != 10:
 
     # return a non-zero exit code, but also print the response body
     elif response_code >= 400:
-        print(str(response_code)+' Error', file=sys.stderr)
         if has_valid_content_type(response):
             print_body(response, client)
-        else:
-            print('Invalid Content-Type', file=sys.stderr)
         break
 
     # 200 OK response
@@ -126,7 +123,6 @@ while redirects != 10:
         if has_valid_content_type(response):
             print_body(response, client)
         else:
-            print('Invalid Content-Type', file=sys.stderr)
             response_code = -1
         break
 
@@ -135,6 +131,4 @@ client.close()
 if 200 == response_code:
     sys.exit(0)
 else:
-    if redirects == 10:
-        print('Error. Could not reach page', file=sys.stderr)
     sys.exit(1)
