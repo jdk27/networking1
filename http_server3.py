@@ -45,6 +45,8 @@ while True:
                 operands[number] = '+Infinity'
             elif x == "-INF" or x == "-INFINITY":
                 operands[number] = '-Infinity'
+            elif x == 'NAN':
+                operands[number] = 'NaN'
             else:
                 operands[number] = number
         except ValueError:
@@ -62,10 +64,14 @@ while True:
                     product = float('+inf')
                 else:
                     product = float('-inf')
+
+        print(product != product)
         if product == float('+inf'):
             product = '+Infinity'
         elif product == float('-inf'):
             product = '-Infinity'
+        elif product != product:
+            product = 'NaN'
 
         response_body = json.dumps(
             {'operation': 'product', 'operands': list(operands.values()), 'result': product})
