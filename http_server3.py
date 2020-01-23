@@ -38,11 +38,13 @@ while True:
     product = 1
     for variable in values:
         left = variable.find('=') + 1
-        x = variable[left:]
+        x = variable[left:].upper()
         try:
             number = float(x)
-            if x == 'inf' or x == '+inf' or x == '-inf':
-                operands[number] = x
+            if x == 'INF' or x == '+INF' or x == 'INFINITY' or x == '+INFINITY':
+                operands[number] = '+Infinity'
+            elif x == "-INF" or x == "-INFINITY":
+                operands[number] = '-Infinity'
             else:
                 operands[number] = number
         except ValueError:
@@ -55,16 +57,15 @@ while True:
         for operand in operands.keys():
             try:
                 product *= operand
-                print(product)
             except OverflowError:
                 if product > 0 and number > 0 or product < 0 and number < 0:
                     product = float('+inf')
                 else:
                     product = float('-inf')
         if product == float('+inf'):
-            product = '+inf'
+            product = '+Infinity'
         elif product == float('-inf'):
-            product = '-inf'
+            product = '-Infinity'
 
         response_body = json.dumps(
             {'operation': 'product', 'operands': list(operands.values()), 'result': product})

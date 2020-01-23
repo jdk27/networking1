@@ -10,7 +10,6 @@ accept_s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # Binding the port to the socket
 accept_s.bind(('', port))
 accept_s.listen(1)
-print('we are listening')
 
 # Readings the request from the client socket
 while True:
